@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Image Overlay on Google Maps with Opacity and Basemap Control</title>
+  <script>
+    let map; // Declare map as a global variable
+    let overlayYellow, overlayRed;
+
+    // Function to initialize the map with the provided API key
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 36.2048, lng: 138.2529 }, // Center the map on Japan
+        zoom: 5,
+        mapTypeId: 'roadmap' // Default map type
+      });
+
+      // Yellow and Red overlay bounds (same coordinates)
+      const imageBoundsYellow = {
+        north: 46.4680498,
+        south: 30.4783901,
+        east: 154.6265855,
+        west: 126.5839016,
+      };
+
+      // Yellow overlay
+      overlayYellow = new google.maps.GroundOverlay(
+        "https://live.staticflickr.com/65535/54116161226_c78f2d073f_o.png",
+        imageBoundsYellow
+      );
+
+      overlayYellow.setOpacity(0); // Initial opacity (100% transparent)
+      overlayYellow.setMap(map);
+
+      // Red overlay (using the same bounds as Yellow)
+      overlayRed = new google.maps.GroundOverlay(
+        "https://live.staticflickr.com/65535/54116161231_0cafe74c78_o.png",
+        imageBoundsYellow
+      );
+
+      overlayRed.setOpacity(0.25); // Initial opacity (25% transparent)
+      overlayRed.setMap(map);
+
+      // Set initial slider values to match initial opacity
+      document.getElementById("opacityYellow").value = 0;
+      document.getElementById("opacityRed").value = 25;
+    }
+
+    // Update the opacity of the Yellow overlay based on slider value
+    function updateOpacityYellow() {
+      const opacity = document.getElementById("opacityYellow").value / 100;
+      overlayYellow.setOpacity(opacity);
+    }
+
+    // Update the opacity of the Red overlay based on slider value
+    function updateOpacityRed() {
+      const opacity = document.getElementById("opacityRed").value / 100;
+      overlayRed.setOpacity(opacity);
+    }
+
+    // Change the basemap based on dropdown selection
+    function changeBasemap() {
+      const basemapType = document.getElementById("basemapSelect").value;
+      map.setMapTypeId(basemapType); // Update the map type
+    }
+
+    // Function to load Google Maps with a prompt for API key
+    function loadGoogleMaps() {
+      const apiKey = prompt("Please enter your Google Maps API key:");
+      if (apiKey) {
+        const script = document.createElement("script");
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`;
+        script.async = true;
+        document.head.appendChild(script);
+      } else {
+        alert("API key is required to load the map.");
+      }
+    }
+  </script>
+</head>
+<body onload="loadGoogleMaps()">
+  <h2>JMC Japan Fall Colors 2024 (October 30th)</h2>
+  
+  <h3>Map Controls</h3>
+  
+  <div>
+    <label>Choose Basemap: </label>
+    <select id="basemapSelect" onchange="changeBasemap()">
+      <option value="roadmap">Roadmap</option>
+      <option value="satellite">Satellite</option>
+      <option value="hybrid">Hybrid</option>
+      <option value="terrain">Terrain</option>
+    </select>
+  </div>
+  
+  <div>
+    <label>Yellow Leaves Opacity: <span id="yellowValue">0%</span></label>
+    <input type="range" id="opacityYellow" min="0" max="100" oninput="updateOpacityYellow(); document.getElementById('yellowValue').innerText = this.value + '%'">
+  </div>
+  
+  <div>
+    <label>Red Leaves Opacity: <span id="redValue">25%</span></label>
+    <input type="range" id="opacityRed" min="0" max="100" oninput="updateOpacityRed(); document.getElementById('redValue').innerText = this.value + '%'">
+  </div>
+  
+  <div id="map" style="height: 80vh; width: 100%;"></div>
+</body>
+</html>
